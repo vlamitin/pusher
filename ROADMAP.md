@@ -9,5 +9,6 @@
 - [ ] Tech: get use of context in controllers
 - [ ] Tech: log middleware for controllers
 - [ ] Tech: API tests
-- [ ] Tech: E2E tests (with real DB)
+- [X] Tech: E2E tests
+- [ ] Tech: Pushover mock server and separate docker-compose fot E2E
 - [ ] Tech: PG port forwarded to host in docker-compose
