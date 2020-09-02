@@ -1,5 +1,5 @@
 FROM golang:1.14-alpine
-RUN apk add --no-cache git
+RUN apk add --no-cache git postgresql-client
 WORKDIR /apps/pusher
 COPY go.mod .
 COPY go.sum .

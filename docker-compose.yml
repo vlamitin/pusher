@@ -1,0 +1,61 @@
+version: '3'
+
+services:
+  psql:
+    image: postgres:11-alpine
+    command: '-c max_connections=500'
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - PGDATA=/var/lib/postgresql/data
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+#    volumes: # uncomment to persist data
+#      - $PWD/db_data:/var/lib/postgresql/data
+
+  migrate:
+    image: "migrator:${VERSION}"
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=psql
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    entrypoint: ["/scripts/wait-for-postgres.sh"]
+    command: ["migrate", "-verbose", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@psql:5432/${POSTGRES_DB}?sslmode=disable", "-path", "/migrations/", "up"]
+    volumes:
+      - $PWD/db/migrations:/migrations
+      - $PWD/scripts:/scripts
+    depends_on:
+      - psql
+
+  pusher:
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=psql
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    image: "pusher:${VERSION}"
+    entrypoint: ["/scripts/wait-for-postgres.sh"]
+    command: ["/apps/pusher/bin/pusher", "-port=8080", "-pushover_app_token=${PUSHOVER_APP_TOKEN}", "-pushover_user_token=${PUSHOVER_USER_TOKEN}"]
+    ports:
+      - 8080:8080
+    depends_on:
+      - migrate
+      - psql
+    volumes:
+      - $PWD/scripts:/scripts
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
