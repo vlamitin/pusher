@@ -8,7 +8,7 @@ type Notifier interface {
 
 type MessageRepo interface {
 	Save(sendStatus int, sendTime time.Time) error
-	GetByTimeFrame(from time.Time, to time.Time) ([]Message, error)
+	GetCountsByTimeFrame(from time.Time, to time.Time) ([]StatusCount, error)
 }
 
 type MessageService struct {
@@ -33,4 +33,8 @@ func (mr *MessageService) SendMessage(title string, message string) error {
 	}
 
 	return nil
+}
+
+func (mr *MessageService) GetCountsByTimeFrame(from time.Time, to time.Time) ([]StatusCount, error) {
+	return mr.repo.GetCountsByTimeFrame(from, to)
 }

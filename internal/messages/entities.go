@@ -15,3 +15,15 @@ func NewMessage(id int, sendStatus int, sendTime time.Time) *Message {
 		SendTime:   sendTime,
 	}
 }
+
+type StatusCount struct {
+	SendStatus int
+	Count      int
+}
+
+func NewStatusCount(sendStatus int, count int) *StatusCount {
+	return &StatusCount{
+		SendStatus: sendStatus,
+		Count:      count,
+	}
+}

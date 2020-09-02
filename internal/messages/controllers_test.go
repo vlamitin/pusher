@@ -15,7 +15,7 @@ func TestPostMessageSuccess(t *testing.T) {
 		t.Fatal(err)
 	}
 	rr := httptest.NewRecorder()
-	controller := NewController(&fakeMessageSenderSuccess{})
+	controller := NewMessageSenderController(&fakeMessageSenderSuccess{})
 	controller.PostMessage(rr, req)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got `%v` want `%v`",
@@ -36,7 +36,7 @@ func TestPostMessageErrorWhenMessageSent(t *testing.T) {
 		t.Fatal(err)
 	}
 	rr := httptest.NewRecorder()
-	controller := NewController(&fakeMessageSenderError{})
+	controller := NewMessageSenderController(&fakeMessageSenderError{})
 	controller.PostMessage(rr, req)
 	if status := rr.Code; status != http.StatusInternalServerError {
 		t.Errorf("handler returned wrong status code: got `%v` want `%v`",
@@ -57,7 +57,7 @@ func TestPostMessageErrorBadReq(t *testing.T) {
 		t.Fatal(err)
 	}
 	rr := httptest.NewRecorder()
-	controller := NewController(&fakeMessageSenderSuccess{})
+	controller := NewMessageSenderController(&fakeMessageSenderSuccess{})
 	controller.PostMessage(rr, req)
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("handler returned wrong status code: got `%v` want `%v`",

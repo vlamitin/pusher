@@ -26,30 +26,29 @@ func (mr *PgMessageRepo) Save(sendStatus int, sendTime time.Time) error {
 	return nil
 }
 
-func (mr *PgMessageRepo) GetByTimeFrame(from time.Time, to time.Time) ([]Message, error) {
-	rows, err := mr.pool.Query(context.Background(), "select * from messages where send_time >= $1 and send_time <= $2 order by send_time desc", from, to)
+func (mr *PgMessageRepo) GetCountsByTimeFrame(from time.Time, to time.Time) ([]StatusCount, error) {
+	rows, err := mr.pool.Query(context.Background(), "select status, count(status) from messages where send_time >= $1 and send_time <= $2 group by status order by status", from, to)
 	if err != nil {
-		return []Message{}, fmt.Errorf("error when exec select query: %v\n", err)
+		return []StatusCount{}, fmt.Errorf("error when exec select query: %v\n", err)
 	}
 
-	var resultItems []Message
+	var resultItems []StatusCount
 
 	for rows.Next() {
-		var id int
 		var sendStatus int
-		var sendTime time.Time
+		var count int
 
-		err := rows.Scan(&id, &sendStatus, &sendTime)
+		err := rows.Scan(&sendStatus, &count)
 		if err != nil {
-			return []Message{}, fmt.Errorf("error when read from select query row: %v\n", err)
+			return []StatusCount{}, fmt.Errorf("error when read from select query row: %v\n", err)
 		}
 
-		resultItems = append(resultItems, *NewMessage(id, sendStatus, sendTime))
+		resultItems = append(resultItems, *NewStatusCount(sendStatus, count))
 	}
 
 	err = rows.Err()
 	if err != nil {
-		return []Message{}, fmt.Errorf("error after read from select query row: %v\n", err)
+		return []StatusCount{}, fmt.Errorf("error after read from select query row: %v\n", err)
 	}
 
 	return resultItems, nil
