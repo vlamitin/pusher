@@ -38,13 +38,17 @@ func main() {
 	pushoverConnector := notifier.NewPushoverConnector(config.userToken, config.appToken)
 	messagesRepo := messages.NewPgMessageRepo(pool)
 	messagesService := messages.NewMessageService(messagesRepo, pushoverConnector)
-	messagesController := messages.NewController(&messagesService)
 
 	err = server.Start(config.serverPort,
 		server.Endpoint{
 			Path:        "/messages",
 			Verb:        "POST",
-			HandlerFunc: messagesController.PostMessage,
+			HandlerFunc: messages.NewMessageSenderController(&messagesService).PostMessage,
+		},
+		server.Endpoint{
+			Path:        "/messages",
+			Verb:        "GET",
+			HandlerFunc: messages.NewCountsReceiverController(&messagesService).GetStatusCounts,
 		},
 	)
 

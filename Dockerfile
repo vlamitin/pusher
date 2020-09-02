@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o bin/pusher cmd/pusher.go
+RUN go build -o bin/pusher cmd/pusher/pusher.go
 EXPOSE 8080
 
 CMD ["bin/pusher"]
